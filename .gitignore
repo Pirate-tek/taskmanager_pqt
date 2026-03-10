@@ -1,0 +1,23 @@
+#ignore the trouble shooting file
+TROUBLESHOOTING.md
+#ignore CSV report file
+mission_report.csv
+
+# ROS 2 build, install, and log directories
+build/
+install/
+log/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS generated files
+.DS_Store
