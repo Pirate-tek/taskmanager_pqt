@@ -32,6 +32,46 @@ install(PROGRAMS
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
 
+# Install the GUI node (Action Client)
+install(PROGRAMS
+  taskmanager_pqt/gui_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME gui_node
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# Install the menu node (Action Client)
+install(PROGRAMS
+  taskmanager_pqt/menu_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME menu_node
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# Install the executor node (Action Server)
+install(PROGRAMS
+  taskmanager_pqt/mission_executor_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME mission_executor_node
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# Install the nearest waypoint node
+install(PROGRAMS
+  taskmanager_pqt/nearest_waypoint_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME nearest_waypoint_node
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# Install the stop node
+install(PROGRAMS
+  taskmanager_pqt/stop_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME stop_node
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)

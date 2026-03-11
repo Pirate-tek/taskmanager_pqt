@@ -1,3 +1,4 @@
+#not in use for now
 #!/usr/bin/env python3
 
 import sys
@@ -10,7 +11,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 from rclpy.executors import SingleThreadedExecutor
-from geometry_msgs.msg import Twist, PoseStamped
+from geometry_msgs.msg import Twist, TwistStamped, PoseStamped
 from nav2_msgs.action import NavigateToPose
 from datetime import datetime
 
@@ -32,7 +33,7 @@ class ControlNode(Node):
 
         # Nav2 action client
         self.nav_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
-        self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.cmd_vel_pub = self.create_publisher(TwistStamped, 'cmd_vel', 10)
 
         self.waypoints = {
             'A': (-2.53, -2.2),
@@ -43,6 +44,7 @@ class ControlNode(Node):
         self.mission_logs = []
         self.subprocess_list = []
         self._shutdown_requested = False
+        self._listening = False
 
         # Launch simulation if requested
         if self.launch_sim:
@@ -165,8 +167,8 @@ class ControlNode(Node):
 
         # Post-arrival maneuvers on success
         if status == 'SUCCESS':
-            self.get_logger().info('Navigation succeeded – performing maneuvers.')
-            self.perform_post_arrival(duration)
+            self.get_logger().info('Navigation succeeded – choose a maneuver.')
+            self.perform_post_arrival()
             duration = time.time() - start_time
 
         self.log_mission(wp_name, status, f'{duration:.2f}')
@@ -197,30 +199,71 @@ class ControlNode(Node):
     # ------------------------------------------------------------------
     # Post-arrival maneuvers
     # ------------------------------------------------------------------
-    def perform_post_arrival(self, nav_duration):
-        self.rotate(2 * math.pi, speed=0.5)
-        self.rotate(math.pi, speed=0.5)
-        self.move_linear(-0.05, speed=0.1)
+    def perform_post_arrival(self):
+        """Show maneuver menu and execute the user's choice."""
+        while True:
+            print('\n' + '-' * 40)
+            print('  POST-ARRIVAL MANEUVERS')
+            print('-' * 40)
+            print('  1 -> Half Spin   (180°)')
+            print('  2 -> Full Spin   (360°)')
+            print('  3 -> Listen to /cmd_vel for 5 s')
+            print('  4 -> NONE (proceed to next waypoint)')
+            print('-' * 40)
+
+            choice = input('Maneuver (1-4): ').strip()
+
+            if choice == '1':
+                print('Executing half spin…')
+                self.rotate(math.pi, speed=0.5)
+            elif choice == '2':
+                print('Executing full spin…')
+                self.rotate(2 * math.pi, speed=0.5)
+            elif choice == '3':
+                print('Listening to /cmd_vel for 5 seconds…')
+                self.listen_cmd_vel(duration=5.0)
+            elif choice == '4':
+                break
+            else:
+                print('Invalid choice. Enter 1-4.')
+
+    def _make_twist_stamped(self, linear_x=0.0, angular_z=0.0):
+        """Build a TwistStamped message (Nav2 enable_stamped_cmd_vel=true)."""
+        msg = TwistStamped()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'base_footprint'
+        msg.twist.linear.x = linear_x
+        msg.twist.angular.z = angular_z
+        return msg
 
     def rotate(self, angle, speed):
-        twist = Twist()
-        twist.angular.z = speed
         dur = abs(angle / speed)
         t0 = time.time()
         while time.time() - t0 < dur:
-            self.cmd_vel_pub.publish(twist)
-            time.sleep(0.1)
-        self.cmd_vel_pub.publish(Twist())
+            self.cmd_vel_pub.publish(self._make_twist_stamped(angular_z=speed))
+            time.sleep(0.05)
+        self.cmd_vel_pub.publish(self._make_twist_stamped())
 
-    def move_linear(self, distance, speed):
-        twist = Twist()
-        twist.linear.x = speed if distance > 0 else -speed
-        dur = abs(distance / speed)
-        t0 = time.time()
-        while time.time() - t0 < dur:
-            self.cmd_vel_pub.publish(twist)
-            time.sleep(0.1)
-        self.cmd_vel_pub.publish(Twist())
+    def listen_cmd_vel(self, duration=5.0):
+        """Subscribe to /cmd_vel_external and relay messages for `duration` seconds."""
+        self.get_logger().info(
+            f'Listening to /cmd_vel_external for {duration}s – send commands now.')
+        self._listening = True
+
+        sub = self.create_subscription(
+            Twist, '/cmd_vel_external', self._cmd_vel_relay_cb, 10)
+
+        time.sleep(duration)
+        self.destroy_subscription(sub)
+        self.cmd_vel_pub.publish(self._make_twist_stamped())  # stop
+        self._listening = False
+        self.get_logger().info('Stopped listening to external cmd_vel.')
+
+    def _cmd_vel_relay_cb(self, msg):
+        if self._listening:
+            stamped = self._make_twist_stamped(
+                linear_x=msg.linear.x, angular_z=msg.angular.z)
+            self.cmd_vel_pub.publish(stamped)
 
     # ------------------------------------------------------------------
     # Logging & reporting
