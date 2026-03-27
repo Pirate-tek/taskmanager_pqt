@@ -382,6 +382,8 @@ class GuiRosNode(Node, QObject):
             'B': (1.16,  1.23),
             'C': (-2.38, 0.545),
             'D': (-2.3,  4.49),
+            'E': (-1.7, -7.0),
+            'F': (1.8, -6.6),
         }
 
         self.mission_logs    = []
@@ -743,12 +745,16 @@ class MainWindow(QMainWindow):
         self.btn_B = QPushButton("Target B")
         self.btn_C = QPushButton("Target C")
         self.btn_D = QPushButton("Target D")
-        for btn, wp in [(self.btn_A, 'A'), (self.btn_B, 'B'), (self.btn_C, 'C'), (self.btn_D, 'D')]:
+        self.btn_E = QPushButton("Target E")
+        self.btn_F = QPushButton("Target F")
+        for btn, wp in [(self.btn_A, 'A'), (self.btn_B, 'B'), (self.btn_C, 'C'), (self.btn_D, 'D'), (self.btn_E, 'E'), (self.btn_F, 'F')]:
             btn.clicked.connect(lambda _, w=wp: self.add_to_queue(w))
         btn_grid.addWidget(self.btn_A, 0, 0)
         btn_grid.addWidget(self.btn_B, 0, 1)
         btn_grid.addWidget(self.btn_C, 1, 0)
         btn_grid.addWidget(self.btn_D, 1, 1)
+        btn_grid.addWidget(self.btn_E, 2, 0)
+        btn_grid.addWidget(self.btn_F, 2, 1)
         wp_lay.addLayout(btn_grid)
         self.btn_nearest = QPushButton("Nearby point")
         self.btn_nearest.setStyleSheet(f"""

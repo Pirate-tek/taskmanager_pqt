@@ -40,6 +40,8 @@ class ControlNode(Node):
             'B': (1.16, 1.23),
             'C': (-2.38, 0.545),
             'D': (-2.3, 4.49),
+            'E': (-1.7, -7.0),
+            'F': (1.8, -6.6),
         }
         self.mission_logs = []
         self.subprocess_list = []
@@ -340,3 +342,5 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
+

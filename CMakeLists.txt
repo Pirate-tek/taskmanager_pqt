@@ -40,7 +40,7 @@ install(PROGRAMS
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
 
-# Install the menu node (Action Client)
+#Install the menu node (Action Client)
 install(PROGRAMS
   taskmanager_pqt/menu_node.py
   DESTINATION lib/${PROJECT_NAME}
