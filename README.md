@@ -26,7 +26,7 @@ The **nav2_taskmanager** package provides a powerful ROS2‑based task manager d
 ### Actions
 | Action | Description |
 | :--- | :--- |
-| `mission_task` | Action server for executing complex waypoint navigation and rotation maneuvers. |
+| `mission_task` | Action server for executing waypoint navigation and rotation maneuvers. |
 | `navigate_to_pose` | Standard Nav2 action used by the executor to reach goals. |
 
 ## Usage
