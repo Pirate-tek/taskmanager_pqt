@@ -1,4 +1,4 @@
-# taskmanager_pqt — Deep Study Guide
+# taskmanager_pqt 
 
 This document is a code-driven study guide for the ROS 2 package `taskmanager_pqt` (in this workspace: `taskmanager_pqt/`). It explains how the package is structured, what runs at runtime, and how messages flow through the system.
 
@@ -230,21 +230,21 @@ A typical "go to waypoint A then stop" run looks like this:
 
 **Publishers**
 
-- `/cmd_vel` (`TwistStamped`) — manual joystick commands (`publish_joystick_cmd`)
+- `/cmd_vel` (`TwistStamped`)  manual joystick commands (`publish_joystick_cmd`)
 
 **Subscribers**
 
-- `/amcl_pose` (`PoseWithCovarianceStamped`) — updates UI position and heading (`_amcl_cb`)
+- `/amcl_pose` (`PoseWithCovarianceStamped`)  updates UI position and heading (`_amcl_cb`)
 
 **Service clients**
 
-- `/get_nearest_waypoint` (`Trigger`) — request closest waypoint (`trigger_nearest_waypoint`)
-- `/stop_mission` (`Trigger`) — emergency stop / cancel (`trigger_stop`)
-- `/shutdown_taskmanager` (`Trigger`) — global kill request at exit (`shutdown_system`)
+- `/get_nearest_waypoint` (`Trigger`)  request closest waypoint (`trigger_nearest_waypoint`)
+- `/stop_mission` (`Trigger`)  emergency stop / cancel (`trigger_stop`)
+- `/shutdown_taskmanager` (`Trigger`)  global kill request at exit (`shutdown_system`)
 
 **Action clients**
 
-- `mission_task` (`MissionTask`) — send waypoint / maneuver commands (`execute_command`)
+- `mission_task` (`MissionTask`)  send waypoint / maneuver commands (`execute_command`)
 
 **Non-ROS runtime components**
 
@@ -266,7 +266,7 @@ A typical "go to waypoint A then stop" run looks like this:
 
 **Publishers**
 
-- `/cmd_vel` (`TwistStamped`) — used for:
+- `/cmd_vel` (`TwistStamped`)  used for:
   - rotation maneuver (`rotate`)
   - stop = publish zero (`stop_mission_callback`)
   - relaying `/cmd_vel_external` during listen maneuver (`_cmd_vel_relay_cb`)
@@ -277,7 +277,7 @@ A typical "go to waypoint A then stop" run looks like this:
 
 **Service servers**
 
-- `/stop_mission` (`Trigger`) — sets `_stop_requested=True`, publishes zero, cancels Nav2 goal if active
+- `/stop_mission` (`Trigger`)  sets `_stop_requested=True`, publishes zero, cancels Nav2 goal if active
 
 **Action server**
 
@@ -292,7 +292,7 @@ A typical "go to waypoint A then stop" run looks like this:
 
 **Action client**
 
-- `navigate_to_pose` (`NavigateToPose`) — sends goals to Nav2
+- `navigate_to_pose` (`NavigateToPose`)  sends goals to Nav2
 
 ### 3.3 `nearest_waypoint_node` (`taskmanager_pqt/nearest_waypoint_node.py`)
 
@@ -306,12 +306,12 @@ A typical "go to waypoint A then stop" run looks like this:
 
 **Subscribers**
 
-- `/amcl_pose` (`PoseWithCovarianceStamped`) — stores `self.amcl_pose`
+- `/amcl_pose` (`PoseWithCovarianceStamped`)  stores `self.amcl_pose`
   - QoS: depth=10, durability=TRANSIENT_LOCAL
 
 **Service servers**
 
-- `/get_nearest_waypoint` (`Trigger`) — response.message is the waypoint label (`"A"`, `"B"`, ...)
+- `/get_nearest_waypoint` (`Trigger`)  response.message is the waypoint label (`"A"`, `"B"`, ...)
 
 ### 3.4 `stop_node` (`taskmanager_pqt/stop_node.py`)
 
@@ -337,7 +337,7 @@ A typical "go to waypoint A then stop" run looks like this:
 
 **Action client**
 
-- `mission_task` (`MissionTask`) — uses `rclpy.spin_until_future_complete(...)` to block until goal and result complete
+- `mission_task` (`MissionTask`)  uses `rclpy.spin_until_future_complete(...)` to block until goal and result complete
 
 **Important mismatch**
 
