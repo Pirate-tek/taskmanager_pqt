@@ -684,7 +684,7 @@ sequenceDiagram
 ### 10.2 Emergency stop during navigation
 
 ```mermaid
-sequenceDiagramsequenceDiagram
+sequenceDiagram
   autonumber
   participant User
   participant ROS as GuiRosNode
@@ -697,7 +697,6 @@ sequenceDiagramsequenceDiagram
   EXEC->>NAV2: cancel_goal_async()
   NAV2-->>EXEC: result status=CANCELED
   EXEC-->>ROS: MissionTask result (success=false, message="stopped")
-
 ```
 
 ---
