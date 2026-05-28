@@ -1,8 +1,8 @@
 # taskmanager_pqt — Deep Study Guide
 
-This document is a code-driven study guide for the ROS 2 package `taskmanager_pqt` (in this workspace: `taskmanager_pqt/`). It explains how the package is structured, what runs at runtime, and how messages/services/actions flow between components.
+This document is a code-driven study guide for the ROS 2 package `taskmanager_pqt` (in this workspace: `taskmanager_pqt/`). It explains how the package is structured, what runs at runtime, and how messages flow through the system.
 
-> Scope note: `taskmanager_pqt` is a *thin mission layer* around Nav2 and the Dynominion simulation. Many runtime nodes (Gazebo, Nav2 servers, AMCL, etc.) are launched from other packages and are treated here as external dependencies.
+> Scope note: `taskmanager_pqt` is a *thin mission layer* around Nav2 and the Dynominion simulation. Many runtime nodes (Gazebo, Nav2 servers, AMCL, etc.) are launched from other packages and are treated as external dependencies here.
 
 ---
 
@@ -15,13 +15,13 @@ Installed executables (see `taskmanager_pqt/CMakeLists.txt`):
 - `gui_node` → `taskmanager_pqt/gui_node.py`
   - A PyQt GUI + embedded ROS node (`advanced_gui_node`) that:
     - starts simulation and helper nodes via `subprocess.Popen(...)`
-    - queues “commands” (waypoints/maneuvers)
+    - queues "commands" (waypoints/maneuvers)
     - sends `MissionTask` action goals to the executor
     - provides manual joystick `/cmd_vel` publishing
 - `mission_executor_node` → `taskmanager_pqt/mission_executor_node.py`
   - Action server for `MissionTask` (`mission_task`) that:
     - translates waypoint goals into Nav2 `NavigateToPose` action goals
-    - executes simple “maneuvers” by publishing to `/cmd_vel`
+    - executes simple "maneuvers" by publishing to `/cmd_vel`
     - provides `/stop_mission` to cancel/stop a running mission
 - `nearest_waypoint_node` → `taskmanager_pqt/nearest_waypoint_node.py`
   - Subscribes to `/amcl_pose`, offers `/get_nearest_waypoint` service returning closest waypoint label
@@ -31,7 +31,7 @@ Installed executables (see `taskmanager_pqt/CMakeLists.txt`):
   - CLI action client for `mission_task` (interactive terminal menu)
   - Starts simulation via `ros2 launch ...` if requested
 - `control_node` → `taskmanager_pqt/control_node.py`
-  - CLI tool that *directly* sends Nav2 `navigate_to_pose` goals (file header says “not in use for now”)
+  - CLI tool that *directly* sends Nav2 `navigate_to_pose` goals (file header says "not in use for now")
 
 ### 1.2 External nodes this package depends on at runtime
 
@@ -40,7 +40,7 @@ Installed executables (see `taskmanager_pqt/CMakeLists.txt`):
 - `dynominion_gazebo` (Gazebo simulation, robot spawn, state publishers)
 - `dynominion_navigation` (Nav2 bringup stack; includes `amcl`, BT navigator, planner/controller servers, lifecycle manager, etc.)
 
-The key external interface for this package is Nav2’s action server:
+The key external interface for this package is Nav2's action server:
 
 - `navigate_to_pose` (`nav2_msgs/action/NavigateToPose`)
 
@@ -149,7 +149,7 @@ flowchart LR
 
 ## 2) Runtime Execution Flow
 
-This section describes “normal GUI operation”: start sim → start executor → run a queued mission to completion → shutdown.
+This section describes "normal GUI operation": start sim → start executor → run a queued mission to completion → shutdown.
 
 ### 2.1 Launch process (simulation + Nav2)
 
@@ -183,7 +183,7 @@ Key design: ROS callbacks run on the **ROS spin thread**, while UI updates happe
 
 ### 2.3 Mission execution timeline (GUI queue)
 
-A typical “go to waypoint A then stop” run looks like this:
+A typical "go to waypoint A then stop" run looks like this:
 
 1. User clicks waypoint button (e.g., **Target A**):
    - `MainWindow.add_to_queue("A")` appends to the queue list widget.
@@ -211,7 +211,7 @@ A typical “go to waypoint A then stop” run looks like this:
 
 - When the GUI window closes (`MainWindow.closeEvent`):
   - `GuiRosNode.shutdown_system()` writes `mission_report.csv`, terminates spawned subprocesses (sim/executor/nearest), and calls `/shutdown_taskmanager` if available.
-- `stop_node`’s `/shutdown_taskmanager` is **not auto-started** by the GUI; you must run it yourself if you want that service.
+- `stop_node`'s `/shutdown_taskmanager` is **not auto-started** by the GUI; you must run it yourself if you want that service.
 
 ---
 
@@ -226,7 +226,7 @@ A typical “go to waypoint A then stop” run looks like this:
 - Human-facing mission control (queueing + progress log)
 - Starts other components with `subprocess.Popen(...)`
 - Bridges ROS callbacks into Qt signals
-- Provides a manual “joystick” by publishing `TwistStamped` to `/cmd_vel`
+- Provides a manual "joystick" by publishing `TwistStamped` to `/cmd_vel`
 
 **Publishers**
 
@@ -261,7 +261,7 @@ A typical “go to waypoint A then stop” run looks like this:
 
 - Provides the `MissionTask` action server (`mission_task`)
 - Converts waypoint goals into Nav2 `NavigateToPose` goals
-- Provides “maneuver” commands implemented by publishing `/cmd_vel`
+- Provides "maneuver" commands implemented by publishing `/cmd_vel`
 - Provides stop/cancel capability via `/stop_mission`
 
 **Publishers**
@@ -319,7 +319,7 @@ A typical “go to waypoint A then stop” run looks like this:
 
 **Responsibility**
 
-- Provides a “big red switch” service
+- Provides a "big red switch" service
 - Kills processes by name match using `pkill -f`
 
 **Service servers**
@@ -345,7 +345,7 @@ A typical “go to waypoint A then stop” run looks like this:
   - `MANEUVER_ROT_<deg>_<dir>`
   - `MANEUVER_LISTEN`
 
-So the “half/full spin” options in `menu_node` will not be executed as maneuvers by the current executor.
+So the "half/full spin" options in `menu_node` will not be executed as maneuvers by the current executor.
 
 ### 3.6 `control_node` (`taskmanager_pqt/control_node.py`)
 
@@ -358,7 +358,7 @@ So the “half/full spin” options in `menu_node` will not be executed as maneu
 
 **Note**
 
-- File header says it is “not in use for now”; the GUI + `MissionTask` path is the main architecture.
+- File header says it is "not in use for now"; the GUI + `MissionTask` path is the main architecture.
 
 ---
 
@@ -451,7 +451,7 @@ Practical takeaway:
 - Long-running loops (`rotate`, `listen_cmd_vel`) contain `time.sleep(...)` and can block a worker thread.
 - The stop service is intended to interrupt missions by setting `_stop_requested` and canceling the Nav2 goal.
 
-If you observe that `/stop_mission` is delayed during long action execution, the typical ROS 2 fix is to place the stop service and/or action server in a `ReentrantCallbackGroup` or separate callback groups (not currently done in code).
+If you observe that `/stop_mission` is delayed during long action execution, the typical ROS 2 fix is to place the stop service and/or action server in a `ReentrantCallbackGroup` or separate callback group.
 
 ### 5.3 CLI nodes (`menu_node`, `control_node`)
 
@@ -480,7 +480,7 @@ Lifecycle (as implemented):
 6. **Client result handling**
    - GUI updates logs and advances queue
 
-Feedback: `MissionTask.action` defines feedback, but the executor does not call `goal_handle.publish_feedback(...)`, and the GUI does not register a feedback callback. Treat feedback as “reserved for future use”.
+Feedback: `MissionTask.action` defines feedback, but the executor does not call `goal_handle.publish_feedback(...)`, and the GUI does not register a feedback callback. Treat feedback as "reserved for future use".
 
 ### 6.2 NavigateToPose (executor → Nav2)
 
@@ -525,7 +525,7 @@ Stop interaction:
     - stop = zero velocity (both stop service and maneuver completion)
 - **Consumers:** Nav2/controller/robot base (external)
 
-### 7.3 `/cmd_vel_external` (relay input during “listen” maneuver)
+### 7.3 `/cmd_vel_external` (relay input during "listen" maneuver)
 
 - **Origin:** any external publisher (teleop/testing)
 - **Transformation:** `Twist` → `TwistStamped` with updated header (`_make_twist_stamped`)
@@ -556,7 +556,7 @@ Stop interaction:
 
 ### `taskmanager_pqt/nearest_waypoint_node.py`
 
-- Simple “query” server: caches `/amcl_pose` and returns nearest waypoint label on demand.
+- Simple "query" server: caches `/amcl_pose` and returns nearest waypoint label on demand.
 
 ### `taskmanager_pqt/stop_node.py`
 
@@ -582,7 +582,7 @@ Stop interaction:
 
 ### 9.2 Common failure modes and how to trace them
 
-**A) GUI says “Action server offline. Is Executor running?”**
+**A) GUI says "Action server offline. Is Executor running?"**
 
 - Verify executor is running:
   - `ros2 node list | rg mission_executor_node`
@@ -591,7 +591,7 @@ Stop interaction:
 - Check executor logs:
   - `tail -n 200 executor_gui.log`
 
-**B) Executor says “Nav2 action server not available!”**
+**B) Executor says "Nav2 action server not available!"**
 
 - Verify Nav2 is up:
   - `ros2 action list | rg navigate_to_pose`
@@ -599,14 +599,14 @@ Stop interaction:
   - `tail -n 200 simulation_gui.log`
 - Remember: `mission_launch.py` delays nav bringup by **15 s**; plus Nav2 startup time.
 
-**C) Nearest waypoint fails (“No pose available”)**
+**C) Nearest waypoint fails ("No pose available")**
 
 - Ensure AMCL publishes:
   - `ros2 topic echo /amcl_pose --once`
 - Confirm the GUI or nearest node sees publishers:
   - `ros2 topic info /amcl_pose`
 
-**D) Stop doesn’t stop quickly**
+**D) Stop doesn't stop quickly**
 
 - Call stop service manually and watch executor logs:
   - `ros2 service call /stop_mission std_srvs/srv/Trigger {}`
@@ -640,7 +640,7 @@ ros2 service call /get_nearest_waypoint std_srvs/srv/Trigger {}
 ros2 service call /stop_mission std_srvs/srv/Trigger {}
 ```
 
-**Test the “listen” relay (if you add a GUI/CLI entry for it)**
+**Test the "listen" relay (if you add a GUI/CLI entry for it)**
 
 In one terminal:
 
@@ -693,12 +693,8 @@ sequenceDiagram
 
   User->>ROS: trigger_stop()
   ROS->>EXEC: /stop_mission Trigger
-  
-  note over EXEC
-    _stop_requested = true;
-    publish /cmd_vel = 0
-  end note
-
+  EXEC->>EXEC: Set _stop_requested=true
+  EXEC->>EXEC: Publish /cmd_vel=0
   EXEC->>NAV2: cancel_goal_async()
   NAV2-->>EXEC: result status=CANCELED
   EXEC-->>ROS: MissionTask result (success=false, message="stopped")
@@ -706,3 +702,10 @@ sequenceDiagram
 
 ---
 
+## Appendix: Build/installation notes (why the package looks like this)
+
+- The package uses `ament_cmake` because it generates a custom action interface:
+  - `rosidl_generate_interfaces(... "action/MissionTask.action" ...)` in `taskmanager_pqt/CMakeLists.txt`.
+- After building, remember to source:
+  - `source install/setup.bash`
+- Background context and historical errors are documented in `taskmanager_pqt/TROUBLESHOOTING.md`.
