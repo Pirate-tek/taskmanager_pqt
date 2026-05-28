@@ -131,7 +131,6 @@ Text diagram (most important links):
       /shutdown_taskmanager  <------  gui_node -> stop_node
 ```
 
-Mermaid (optional, if your Markdown viewer supports it):
 
 ```mermaid
 flowchart LR
@@ -701,12 +700,4 @@ sequenceDiagram
 ```
 
 ---
-
-## Appendix: Build/installation notes (why the package looks like this)
-
-- The package uses `ament_cmake` because it generates a custom action interface:
-  - `rosidl_generate_interfaces(... "action/MissionTask.action" ...)` in `taskmanager_pqt/CMakeLists.txt`.
-- After building, remember to source:
-  - `source install/setup.bash`
-- Background context and historical errors are documented in `taskmanager_pqt/TROUBLESHOOTING.md`.
 
