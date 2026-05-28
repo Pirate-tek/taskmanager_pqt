@@ -693,7 +693,12 @@ sequenceDiagram
 
   User->>ROS: trigger_stop()
   ROS->>EXEC: /stop_mission Trigger
-  Note over EXEC: "stop_requested=true;<br/>publish /cmd_vel=0"
+  
+  note over EXEC
+    _stop_requested = true;
+    publish /cmd_vel = 0
+  end note
+
   EXEC->>NAV2: cancel_goal_async()
   NAV2-->>EXEC: result status=CANCELED
   EXEC-->>ROS: MissionTask result (success=false, message="stopped")
